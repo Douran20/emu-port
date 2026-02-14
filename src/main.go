@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	lo "emu-port/src/logic"
 	"image/color"
 	"math" // i cannot be trusted
@@ -9,6 +10,9 @@ import (
 )
 
 const DEBUG bool = false
+
+//go:embed resource/HackNerdFontMono-Regular.ttf
+var fontData []byte
 
 func main() {
 	config_buffer := &lo.Config{}
@@ -34,10 +38,13 @@ func main() {
 	}
 
 	if !DEBUG {rl.SetTraceLogLevel(rl.LogError)}
-	rl.SetConfigFlags(rl.FlagFullscreenMode | rl.FlagVsyncHint | rl.FlagMsaa4xHint)
-	rl.InitWindow(0, 0, "emu-port")
-	font := rl.LoadFontEx("/usr/share/fonts/TTF/HackNerdFontMono-Regular.ttf", 50, nil, 0)
+	rl.SetConfigFlags(rl.FlagVsyncHint | rl.FlagMsaa4xHint)
+	rl.InitWindow(1920, 1080, "emu-port")
+	
+	font := rl.LoadFontFromMemory(".ttf", fontData, 64, nil)
+	defer rl.UnloadFont(font)
 	rl.HideCursor()
+	rl.SetTextureFilter(font.Texture, rl.FilterBilinear)
 
 	var flick_stick bool = true
 
@@ -112,19 +119,24 @@ func main() {
 				}
 			}
 			if rl.IsGamepadButtonPressed(0, rl.GamepadButtonRightFaceDown) {
+				println("X button Pressed")
 				selected := buffer[selectIndex]
 
 				var args []string
 
 				for _, a := range selected.GameArgs {
 					if a == "$" {
+						println(selected.GamePath)
 						args = append(args, selected.GamePath)
 					} else {
+						println(a)
 						args = append(args, a)
 					}
 				}
 				
 				game, err := lo.RunGame(buffer[selectIndex].GameBin, args)
+				println("launched process ", game)
+				//println(args)
 				if err == nil {
 					game_process = game
 				}

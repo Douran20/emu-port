@@ -1,0 +1,11 @@
+{
+  "platform":"pcsx2",
+  
+  "game_path":"mnt/evo/pcsx2/src",
+  "extension":"iso",
+
+  "bin":"/mnt/evo/pcsx2/pcsx2-v2.4.0-linux-appimage-x64-Qt.AppImage",
+  "args":["$", "-fullscreen", "-bigpicture"],
+
+  "regex":"\\/([^/]+?)?\\s*\\("
+}
